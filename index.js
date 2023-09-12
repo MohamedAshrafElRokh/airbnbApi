@@ -9,18 +9,15 @@ require('dotenv').config()
 
 app.use(express.json())
 
-app.use(cors({
+// app.use(cors({
 
-    credentials:true,
-    origin:'http://localhost:5173'
-}))
+//     credentials:true,
+//     origin:'http://localhost:5173'
+// }))
+
+app.use(cors({ origin: "*" }));
 
 mongoose.connect(process.env.MONGO_URL);
-
-app.get('/test',(req,res)=>
-{
-    res.json("hi")
-})
 
 app.post('/register', async(req,res)=>
 {
@@ -30,7 +27,7 @@ app.post('/register', async(req,res)=>
         email,
         password:bcrypt.hashSync(password, bcryptSalt),
     })
+
     res.json(userData);
 })
-
 app.listen(8000)
