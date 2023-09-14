@@ -21,13 +21,50 @@ mongoose.connect(process.env.MONGO_URL);
 
 app.post('/register', async(req,res)=>
 {
-    const {name, email, password} = req.body;
-    const userData = await User.create({
-        name,
-        email,
-        password:bcrypt.hashSync(password, bcryptSalt),
+    try
+    {
+        const {name, email, password} = req.body;
+        const userData = await User.create({
+            name,
+            email,
+            password:bcrypt.hashSync(password, bcryptSalt),
     })
-
+    } catch(error)
+    {
+        res.status(422).json(error)
+    }
     res.json(userData);
 })
+
+app.post('/login',async(req,res)=>
+{
+    try
+    {
+        const {email,password} = req.body;
+        console.log(res.body);
+        const userData = await User.findOne({email})
+
+        if(userData)
+        {
+            const passOk = bcrypt.compareSync(password,userData.password)
+            if(passOk)
+            {
+                res.json(true)
+
+            }else{
+                res.json(false)
+            }
+        }
+        else
+        {
+            res.json('not found')
+        }
+    }
+    catch(error)
+    {
+        res.status(422).json(error)
+    }
+})
+
+
 app.listen(8000)
