@@ -47,18 +47,16 @@ app.post('/login',async(req,res)=>
     try
     {
         const {email,password} = req.body;
-        console.log(res.body);
         const userData = await User.findOne({email})
         if(userData)
         {
             const passOk = bcrypt.compareSync(password,userData.password)
-            console.log(userData, "api");
             if(passOk)
             {
                 jwt.sign({email:userData.email, id:userData._id}, jwtSecret, {}, (error,token) =>
                 {
                     if(error)   throw error
-                    res.cookie('token', token).json(true)
+                    res.cookie('token', token).json(userData)
                     
                 })
             }else{
@@ -76,23 +74,15 @@ app.post('/login',async(req,res)=>
     }
 })
 
-app.get('/profile',(req, res)=>
-{
-    const {token} = req.cookies
+// app.get('/profile', async(req, res)=>
+// {
+//     // const {token} = req.cookies
+//     // console.log(req.cookies,"token");
+//             const userInfo = await User.findOne(userData.id)
+//             res.json(userInfo);
+//             console.log(userInfo);
 
-    if(token)
-    {
-        jwt.verify(token,jwtSecret,{}, async (err,userData)=>
-        {
-            if (err) throw err
-            const userInfo = await User.findById(userData.id)
-            res.json(userInfo);
-        })
-    }else
-    {
-        res.json(null)
-    }
-})
+// })
 
 
 app.listen(8000)
