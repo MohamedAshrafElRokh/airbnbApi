@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs')
 const app = express();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
+const cookieParser = require("cookie-parser")
 require('dotenv').config()
 
 
@@ -72,6 +73,24 @@ app.post('/login',async(req,res)=>
     catch(error)
     {
         res.status(422).json(error)
+    }
+})
+
+app.get('/profile',(req, res)=>
+{
+    const {token} = req.cookies
+
+    if(token)
+    {
+        jwt.verify(token,jwtSecret,{}, async (err,userData)=>
+        {
+            if (err) throw err
+            const userInfo = await User.findById(userData.id)
+            res.json(userInfo);
+        })
+    }else
+    {
+        res.json(null)
     }
 })
 
