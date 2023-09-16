@@ -10,6 +10,7 @@ require('dotenv').config()
 
 
 const bcryptSalt = bcrypt.genSaltSync(10)
+app.use(cookieParser())
 const jwtSecret = "sdaadasdadawdadad"
 app.use(express.json())
 
@@ -53,7 +54,7 @@ app.post('/login',async(req,res)=>
             const passOk = bcrypt.compareSync(password,userData.password)
             if(passOk)
             {
-                jwt.sign({email:userData.email, id:userData._id}, jwtSecret, {}, (error,token) =>
+                jwt.sign({email:userData.email, name:userData.name, id:userData._id}, jwtSecret, {}, (error,token) =>
                 {
                     if(error)   throw error
                     res.cookie('token', token).json(userData)
@@ -74,15 +75,17 @@ app.post('/login',async(req,res)=>
     }
 })
 
-// app.get('/profile', async(req, res)=>
-// {
-//     // const {token} = req.cookies
-//     // console.log(req.cookies,"token");
-//             const userInfo = await User.findOne(userData.id)
-//             res.json(userInfo);
-//             console.log(userInfo);
-
-// })
+app.get('/profile', async(req, res)=>
+{
+    try
+    {
+        const {name,email} = jwt.verify(req.cookies.token,jwtSecret)
+        res.json( {name,email} );
+    }catch(err)
+    {
+        res.json(`error could not virefy token ${err}`)
+    }
+})
 
 
 app.listen(8000)
